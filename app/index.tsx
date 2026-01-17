@@ -1,114 +1,87 @@
-import { router } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-// @ts-ignore
-import Zeroconf, { Service } from 'react-native-zeroconf';
-import { useEffect, useState } from "react";
-
-const zeroconf = new Zeroconf();
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { router } from 'expo-router'
+import { useState } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScaledSheet, scale } from "react-native-size-matters";
 
 
-const djColor = "#7e6ee8"
-const teamColorA = "#ff0000"
-const teamColorB = "#2eba2e"
 
-export default function Index() {
+const Index = () => {
 
+  const [name, setName] = useState('');
+  const storeName = async (name: string) => {
+    if (!name) return alert("Please enter your name");
+    if (name.trim().length < 3) return alert("Name must be at least 3 characters long");
+
+    try {
+      await AsyncStorage.setItem('name', name);
+      router.replace("/pages/Roles");
+    } catch (e) {
+      console.error('Failed to store name:', e);
+    }
+  }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Continue as</Text>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={() => router.push("/pages/Results")} style={[styles.button, styles.djColor]}>
-          <MaterialCommunityIcons style={styles.icon} name="account-music" size={70} color={djColor} />
+    <KeyboardAvoidingView behavior='padding' style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Enter your name</Text>
+        <TextInput
+          placeholder="Name"
+          style={styles.input}
+          placeholderTextColor="#999"
+          value={name}
+          onChangeText={setName}
+        />
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => storeName(name)}
+        >
+          <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
-        <Text onPress={() => router.push("/pages/Results")} style={[styles.buttonText, styles.djColorText]}>DJ</Text>
       </View>
-      <View style={styles.flexRow}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, styles.teamColorA]}>
-            <FontAwesome style={styles.icon} name="users" size={50} color={teamColorA} />
-          </TouchableOpacity>
-          <Text style={[styles.buttonText, styles.teamColorAText]}>TEAM A</Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, styles.teamColorB]}>
-            <FontAwesome style={styles.icon} name="users" size={50} color={teamColorB} />
-          </TouchableOpacity>
-          <Text style={[styles.buttonText, styles.teamColorBText]}>TEAM B</Text>
-        </View>
-      </View>
-    </SafeAreaView>
-  );
+    </KeyboardAvoidingView>
+  )
 }
 
-const styles = StyleSheet.create({
+export default Index
+
+const styles = ScaledSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center"
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#101010ff',
+  },
+  content: {
+    width: scale(350),
+    paddingHorizontal: scale(20),
   },
   title: {
-    marginBottom: 50,
-    fontSize: 50,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#444444",
-    fontFamily: "roboto"
-
+    fontSize: scale(30),
+    fontWeight: 'bold',
+    marginBottom: scale(20),
+    color: '#fff',
   },
-  buttonContainer: {
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 10
-  },
-  icon: {
-    position: "absolute"
-  },
-  flexRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 10
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: scale(10),
+    paddingVertical: scale(15),
+    marginBottom: scale(10),
+    borderRadius: scale(5),
+    color: '#fff',
   },
   button: {
-    padding: 10,
-    margin: 10,
-    borderRadius: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 100,
-    height: 100,
-    borderWidth: 5,
-    position: "relative"
+    backgroundColor: '#484848ff',
+    padding: scale(10),
+    borderRadius: scale(5),
   },
   buttonText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginTop: -15
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: scale(20),
   },
-  djColor: {
-    backgroundColor: "#7e6ee85e",
-    borderColor: "#7e6ee8a3",
-  },
-  teamColorA: {
-    backgroundColor: "#ff000059",
-    borderColor: "#ff0000fd",
-  },
-  teamColorB: {
-    backgroundColor: "#2eba2e67",
-    borderColor: "#2eba2ef6",
-  },
-  teamColorAText: {
-    color: "#ff0000"
-  },
-  teamColorBText: {
-    color: "#2eba2e"
-  },
-  djColorText: {
-    color: "#7e6ee8"
-  }
-});
+})
