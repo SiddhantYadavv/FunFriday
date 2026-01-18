@@ -1,19 +1,29 @@
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router'
-import { useState } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ScaledSheet, scale } from "react-native-size-matters";
+import React, { useEffect, useState } from 'react'
+import { KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ScaledSheet, scale } from "react-native-size-matters"
 
 
 
 const Index = () => {
 
   const [name, setName] = useState('');
+
+  useEffect(() => {
+    const getName = async () => {
+      const name = await AsyncStorage.getItem('name');
+      if (name) {
+        router.replace("/pages/Roles");
+      }
+    }
+    getName();
+  }, []);
+
   const storeName = async (name: string) => {
     if (!name) return alert("Please enter your name");
     if (name.trim().length < 3) return alert("Name must be at least 3 characters long");
+    if (name.trim().length > 10) return alert("Name must be at most 10 characters long");
 
     try {
       await AsyncStorage.setItem('name', name);

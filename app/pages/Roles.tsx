@@ -1,16 +1,14 @@
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Network from 'expo-network';
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useEffect, useState } from "react";
-// @ts-ignore
-import Zeroconf from "react-native-zeroconf";
 import { ScaledSheet, scale } from "react-native-size-matters";
-import TcpSocket from "react-native-tcp-socket";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const zeroconf = new Zeroconf();
 
 const djColor = "#7e6ee8";
 const teamColorA = "#ff0000";
@@ -18,81 +16,47 @@ const teamColorB = "#2eba2e";
 
 const Roles = () => {
 
-    const [isScanning, setIsScanning] = useState(false);
-    const [devices, setDevices] = useState<string[]>([]);
-
+    const [myIp, setMyIp] = useState('');
 
     useEffect(() => {
-        const server = TcpSocket.createServer(socket => {
-            socket.on("data", data => {
-                const msg = JSON.parse(data.toString());
-                console.log("📩 Received:", msg);
-            });
-        });
-
-        server.listen({ port: 8080 });
-
-        return () => {
-            server.close();
+        const getIp = async () => {
+            const ip = await Network.getIpAddressAsync();
+            setMyIp(ip);
         };
+
+        getIp();
     }, []);
 
-
-    useEffect(() => {
-
-        zeroconf.on("start", () => {
-            setIsScanning(true);
-        });
-        zeroconf.on('stop', () => {
-            setIsScanning(false);
-        })
-
-        setTimeout(() => {
-            zeroconf.stop();
-        }, 10000);
-
-
-        zeroconf.publishService('funfriday', 'tcp', 'local.', 'MyWebServer', 8080, {
-            path: '/api',
-            version: '1.0',
-        })
-
-
-        zeroconf.on("resolved", async (service: any) => {
-            setDevices(prev => {
-                const newAddresses = service.addresses.filter((addr: string) => !prev.includes(addr));
-                return [...prev, ...newAddresses];
-            });
-        });
-        zeroconf.on("remove", (name: string) => {
-            setDevices(prev => prev.filter(device => device !== name));
-        });
-
-        zeroconf.scan("funfriday", "tcp", "local.");
-
-
-        return () => {
-            zeroconf.stop();
-            zeroconf.removeAllListeners();
-        };
-    }, []);
-    const services = zeroconf.getServices()
-
-    console.log('IIIII:', devices)
 
     const clearData = async () => {
         await AsyncStorage.clear();
         router.replace("/");
     }
 
+    const getName = async () => {
+        const name = await AsyncStorage.getItem('name');
+        return name;
+    }
+
+    const goToResults = (role: string) => {
+        router.push({
+            pathname: "/pages/Results",
+            params: {
+                myIp: myIp,
+                role: role,
+            }
+        })
+    }
+
     return (
         <SafeAreaView style={styles.container}>
-            <Text onPress={clearData} style={styles.title}>Continue as</Text>
+            <Text style={styles.greetingTitle}>Hello {getName()}</Text>
+            <Text style={styles.title}>Continue as</Text>
 
             {/* DJ */}
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                    onPress={() => router.push("/pages/Results")}
+                    onPress={() => goToResults("DJ")}
                     style={[styles.button, styles.djColor]}
                 >
                     <MaterialCommunityIcons
@@ -102,7 +66,7 @@ const Roles = () => {
                     />
                 </TouchableOpacity>
                 <Text
-                    onPress={() => router.push("/pages/Results")}
+                    onPress={() => goToResults("DJ")}
                     style={[styles.buttonText, styles.djColorText]}
                 >
                     DJ
@@ -112,31 +76,47 @@ const Roles = () => {
             {/* Teams */}
             <View style={styles.flexRow}>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={[styles.button, styles.teamColorA]}>
+                    <TouchableOpacity
+                        onPress={() => goToResults("TEAMA")}
+                        style={[styles.button, styles.teamColorA]}>
                         <FontAwesome
                             name="users"
                             size={scale(42)}
                             color={teamColorA}
                         />
                     </TouchableOpacity>
-                    <Text style={[styles.buttonText, styles.teamColorAText]}>
+                    <Text
+                        onPress={() => goToResults("TEAMA")}
+                        style={[styles.buttonText, styles.teamColorAText]}>
                         TEAM A
                     </Text>
                 </View>
 
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={[styles.button, styles.teamColorB]}>
+                    <TouchableOpacity
+                        onPress={() => goToResults("TEAMB")}
+                        style={[styles.button, styles.teamColorB]}>
                         <FontAwesome
                             name="users"
                             size={scale(42)}
                             color={teamColorB}
                         />
                     </TouchableOpacity>
-                    <Text style={[styles.buttonText, styles.teamColorBText]}>
+                    <Text
+                        onPress={() => goToResults("TEAMB")}
+                        style={[styles.buttonText, styles.teamColorBText]}>
                         TEAM B
                     </Text>
                 </View>
             </View>
+
+            <TouchableOpacity
+                onPress={clearData}
+                style={styles.clearButton}
+            >
+                <FontAwesome5 name="trash" size={24} color="red" />
+                <Text style={styles.clearButtonText}>Clear Data</Text>
+            </TouchableOpacity>
         </SafeAreaView>
     );
 }
@@ -150,6 +130,14 @@ const styles = ScaledSheet.create({
         alignItems: "center",
         paddingHorizontal: "20@s",
         backgroundColor: '#101010ff',
+    },
+
+    greetingTitle: {
+        fontSize: "36@s",
+        fontWeight: "bold",
+        textAlign: "center",
+        color: "#fff",
+        fontFamily: "roboto",
     },
 
     title: {
@@ -214,6 +202,24 @@ const styles = ScaledSheet.create({
 
     djColorText: {
         color: "#7e6ee8",
+    },
+
+    clearButton: {
+        marginTop: "40@vs",
+        borderWidth: scale(2),
+        borderColor: "#ff0000",
+        padding: "10@s",
+        borderRadius: "5@s",
+        flexDirection: "row",
+        alignItems: "center",
+        gap: scale(10),
+    },
+
+    clearButtonText: {
+        color: "#ff0000",
+        fontWeight: "bold",
+        textAlign: "center",
+        fontSize: "20@s",
     },
 });
 
