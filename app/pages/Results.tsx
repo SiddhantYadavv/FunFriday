@@ -1,3 +1,4 @@
+import { useKeepAwake } from 'expo-keep-awake';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
@@ -17,6 +18,8 @@ const SERVICE_NAME = 'dj-server';
 const zeroconf = new Zeroconf();
 
 export default function Results() {
+    useKeepAwake();
+
     const { myIp, role } = useLocalSearchParams();
 
     const [djIp, setDjIp] = useState<string | null>(null);

@@ -2,15 +2,28 @@ import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { scale, ScaledSheet } from "react-native-size-matters";
 
+
 const TeamAScreen = ({ sendMessage, message }: { sendMessage: (value: string) => void, message: string }) => {
+    // const handlePress = () => {
+    //     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    //     sendMessage("TEAMA");
+    // }
     return (
         <View style={styles.buttonContainer}>
-            <Text style={styles.title}>{message}</Text>
-            <TouchableOpacity onPress={() => sendMessage("TEAMA")}
-                style={styles.buzzer}>
-                <Text style={styles.buttonTextRed}>I know this song</Text>
-            </TouchableOpacity>
-            <Text style={styles.buttonText}>Team A</Text>
+            {/* <Text style={styles.title}>{message}</Text> */}
+            {message == "" ?
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={() => sendMessage("TEAMA")} style={styles.buzzer}>
+                        <Text style={styles.buttonTextRed}>I know this song</Text>
+                    </TouchableOpacity>
+
+                    <Text style={styles.buttonText}>Team A</Text>
+                </View>
+                :
+                <Text style={styles.buttonTextRed}>
+                    Waiting for DJ to reset
+                </Text>
+            }
             {/* <TouchableOpacity style={styles.button}>
             </TouchableOpacity> */}
         </View>

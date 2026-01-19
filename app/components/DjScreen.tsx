@@ -4,12 +4,12 @@ import { scale, ScaledSheet } from "react-native-size-matters";
 
 const DjScreen = ({ sendMessage, message }: { sendMessage: (value: string) => void, message: string }) => {
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>DJ Screen</Text>
-            <Text style={styles.title}>{message}</Text>
-            <TouchableOpacity style={styles.button} onPress={() => sendMessage("")}>
+        <View style={[styles.container, { backgroundColor: message == "TEAMA" ? "#ff0000" : message == "TEAMB" ? "#2eba2e" : "black" }]}>
+            {/* <Text style={styles.title}>DJ Screen</Text> */}
+            <Text style={styles.title}>{message == "TEAMA" ? "Team A pressed the buzzer" : message == "TEAMB" ? "Team B pressed the buzzer" : "Waiting for buzzer"}</Text>
+            {message != "" && <TouchableOpacity style={styles.button} onPress={() => sendMessage("")}>
                 <Text style={styles.buttonText}>Reset</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>}
         </View>
     )
 }
@@ -31,13 +31,16 @@ const styles = ScaledSheet.create({
 
     button: {
         marginTop: scale(20),
-        padding: scale(10),
+        paddingVertical: scale(10),
         backgroundColor: '#444444ff',
         borderRadius: scale(5),
+        width: scale(200),
+        alignItems: 'center',
     },
 
     buttonText: {
         color: '#fff',
         fontWeight: 'bold',
+        fontSize: scale(30),
     },
 })

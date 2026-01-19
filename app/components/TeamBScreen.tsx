@@ -5,13 +5,20 @@ import { scale, ScaledSheet } from "react-native-size-matters";
 const TeamBScreen = ({ sendMessage, message }: { sendMessage: (value: string) => void, message: string }) => {
     return (
         <View style={styles.buttonContainer}>
-            <Text style={styles.title}>{message}</Text>
-            <TouchableOpacity
-                onPress={() => sendMessage("TEAMB")}
-                style={styles.buzzer}>
-                <Text style={styles.buttonTextGreen}>I know this song</Text>
-            </TouchableOpacity>
-            <Text style={styles.buttonText}>Team B</Text>
+            {/* <Text style={styles.title}>{message}</Text> */}
+            {message == "" ?
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={() => sendMessage("TEAMB")} style={styles.buzzer}>
+                        <Text style={styles.buttonTextGreen}>I know this song</Text>
+                    </TouchableOpacity>
+
+                    <Text style={styles.buttonText}>Team B</Text>
+                </View>
+                :
+                <Text style={styles.buttonTextGreen}>
+                    Waiting for DJ to reset
+                </Text>
+            }
             {/* <TouchableOpacity style={styles.button}>
             </TouchableOpacity> */}
         </View>
